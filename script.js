@@ -1,8 +1,10 @@
 // 🔥 SUPABASE CONFIG
-const supabaseUrl = "TU_SUPABASE_URL";
-const supabaseKey = "TU_SUPABASE_ANON_KEY";
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseUrl = "https://wgjmygpaapczqedcxahz.supabase.co";
+const supabaseKey = "sb_publishable_OQIGeDH1ejG2FTmMi7CdAg_rLlIK55k";
+
+const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
 // ---------------- LOGIN ----------------
 async function login() {
@@ -15,7 +17,7 @@ async function login() {
   });
 
   if (error) {
-    alert(error.message);
+    alert("Error: " + error.message);
     return;
   }
 
@@ -27,7 +29,14 @@ async function login() {
 
 // ---------------- PRODUCTOS ----------------
 async function loadProducts() {
-  const { data } = await supabaseClient.from("productos").select("*");
+  const { data, error } = await supabaseClient
+    .from("productos")
+    .select("*");
+
+  if (error) {
+    console.error(error);
+    return;
+  }
 
   const grid = document.getElementById("productGrid");
   grid.innerHTML = "";
@@ -36,18 +45,28 @@ async function loadProducts() {
     grid.innerHTML += `
       <div class="card">
         <h3>${p.nombre}</h3>
-        <p>Inventario: ${p.cantidad}</p>
-        <p>${p.descripcion}</p>
-        <p>Precio: ${p.precio} CUP</p>
-        <p>Unidad: ${p.unidad}</p>
 
-        <button class="btn">Vender</button>
+        <p><b>Inventario:</b> ${p.inventario}</p>
+        <p><b>Cantidad:</b> ${p.cantidad}</p>
+        <p>${p.descripcion}</p>
+
+        <p><b>Precio:</b> ${p.precio_cup} CUP</p>
+        <p><b>Unidad:</b> ${p.unidad_medida}</p>
+
+        <button class="btn" onclick="sellProduct('${p.id}')">
+          Vender
+        </button>
       </div>
     `;
   });
 }
 
-// ---------------- FOOTER ----------------
+// ---------------- VENDER (BASE) ----------------
+async function sellProduct(id) {
+  alert("Venta en desarrollo: " + id);
+}
+
+// ---------------- VISTAS ----------------
 function showProducts() {
   loadProducts();
 }
