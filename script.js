@@ -1,3 +1,4 @@
+
 // 🔥 SUPABASE CONFIG
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
@@ -21,8 +22,10 @@ async function login() {
     return;
   }
 
+  // UI
   document.getElementById("loginPage").style.display = "none";
   document.getElementById("app").style.display = "block";
+  document.getElementById("footer").style.display = "block";
 
   loadProducts();
 }
@@ -61,7 +64,7 @@ async function loadProducts() {
   });
 }
 
-// ---------------- VENDER (BASE) ----------------
+// ---------------- VENTA BASE ----------------
 async function sellProduct(id) {
   alert("Venta en desarrollo: " + id);
 }
@@ -74,3 +77,9 @@ function showProducts() {
 function showSales() {
   alert("Aquí irá la tabla de ventas");
 }
+
+// ---------------- EXPORT GLOBAL (IMPORTANTE) ----------------
+window.login = login;
+window.showProducts = showProducts;
+window.showSales = showSales;
+window.sellProduct = sellProduct;
