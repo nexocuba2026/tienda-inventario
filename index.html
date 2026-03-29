@@ -31,7 +31,7 @@
 <div class="content" id="app" style="display:none;">
 
   <!-- BOTÓN ADMIN -->
-  <div class="top-actions">
+  <div class="top-actions" style="display:none;">
     <button class="add-btn" onclick="openModal()">
       ➕ Agregar producto
     </button>
@@ -56,16 +56,18 @@
 
     <h2>Agregar Producto</h2>
 
-    <input type="text" id="nombre" placeholder="Nombre del producto">
-    <input type="text" id="inventario" placeholder="Número de inventario">
+    <!-- 🔥 CAMPOS CORRECTOS SEGÚN SUPABASE -->
+    <input type="text" id="nombre" placeholder="Nombre">
+    <input type="text" id="numero_inventario" placeholder="Número de inventario">
     <input type="text" id="descripcion" placeholder="Descripción">
-    <input type="text" id="caracteristicas" placeholder="Características">
 
-    <input type="number" id="cantidad" placeholder="Cantidad">
-    <input type="text" id="unidad" placeholder="Unidad de medida">
-    <input type="number" id="precio" placeholder="Precio CUP">
+    <input type="number" id="stock" placeholder="Stock">
+    <input type="text" id="unidad_medida" placeholder="Unidad de medida">
+    <input type="number" id="precio_cup" placeholder="Precio CUP">
+    <input type="text" id="categoria" placeholder="Categoría">
 
-    <input type="text" id="foto" placeholder="URL de la foto">
+    <!-- 🔥 IMAGEN REAL (GALERÍA / CÁMARA / PC) -->
+    <input type="file" id="imagen" accept="image/*">
 
     <div class="modal-actions">
       <button onclick="addProduct()">Guardar</button>
