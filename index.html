@@ -30,19 +30,52 @@
 <!-- APP -->
 <div class="content" id="app" style="display:none;">
 
+  <!-- BOTÓN ADMIN -->
+  <div class="top-actions">
+    <button class="add-btn" onclick="openModal()">
+      ➕ Agregar producto
+    </button>
+  </div>
+
+  <!-- GRID PRODUCTOS -->
   <div class="grid" id="productGrid">
     <!-- productos dinámicos -->
   </div>
 
 </div>
 
-<!-- FOOTER (OCULTO POR DEFECTO) -->
+<!-- FOOTER -->
 <footer id="footer" style="display:none;">
   <button onclick="showProducts()">Productos</button>
   <button onclick="showSales()">Ventas</button>
 </footer>
 
-<!-- SUPABASE (MODERNO + CORRECTO) -->
+<!-- MODAL AGREGAR PRODUCTO -->
+<div class="modal" id="productModal">
+  <div class="modal-content">
+
+    <h2>Agregar Producto</h2>
+
+    <input type="text" id="nombre" placeholder="Nombre del producto">
+    <input type="text" id="inventario" placeholder="Número de inventario">
+    <input type="text" id="descripcion" placeholder="Descripción">
+    <input type="text" id="caracteristicas" placeholder="Características">
+
+    <input type="number" id="cantidad" placeholder="Cantidad">
+    <input type="text" id="unidad" placeholder="Unidad de medida">
+    <input type="number" id="precio" placeholder="Precio CUP">
+
+    <input type="text" id="foto" placeholder="URL de la foto">
+
+    <div class="modal-actions">
+      <button onclick="addProduct()">Guardar</button>
+      <button onclick="closeModal()">Cancelar</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- SUPABASE + JS -->
 <script type="module" src="script.js"></script>
 
 </body>
