@@ -57,17 +57,15 @@
     <h2>Agregar Producto</h2>
 
     <!-- 🔥 CAMPOS CORRECTOS SEGÚN SUPABASE -->
-    <input type="text" id="nombre" placeholder="Nombre">
-    <input type="text" id="numero_inventario" placeholder="Número de inventario">
-    <input type="text" id="descripcion" placeholder="Descripción">
-
-    <input type="number" id="stock" placeholder="Stock">
-    <input type="text" id="unidad_medida" placeholder="Unidad de medida">
-    <input type="number" id="precio_cup" placeholder="Precio CUP">
-    <input type="text" id="categoria" placeholder="Categoría">
+  <input id="nombre" placeholder="Nombre del producto">
+<input id="numero_inventario" placeholder="Número de inventario">
+<input id="descripcion" placeholder="Descripción">
+<input id="stock" type="number" placeholder="Stock">
+<input id="unidad_medida" placeholder="Unidad de medida">
+<input id="precio_cup" type="number" placeholder="Precio CUP">
 
     <!-- 🔥 IMAGEN REAL (GALERÍA / CÁMARA / PC) -->
-    <input type="file" id="imagen" accept="image/*">
+  <input type="file" id="imagen">
 
     <div class="modal-actions">
       <button onclick="addProduct()">Guardar</button>
