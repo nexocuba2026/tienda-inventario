@@ -74,7 +74,6 @@ function clearForm() {
   document.getElementById("categoria").value = "";
   document.getElementById("imagen").value = "";
 }
-
 // ---------------- SUBIR IMAGEN A SUPABASE STORAGE ----------------
 async function uploadImage(file) {
   const fileName = `${Date.now()}_${file.name}`;
@@ -85,7 +84,7 @@ async function uploadImage(file) {
 
   if (error) {
     console.error(error);
-    return null;
+    return "";
   }
 
   const { data } = supabase.storage
@@ -99,7 +98,6 @@ async function uploadImage(file) {
 async function addProduct() {
 
   const file = document.getElementById("imagen").files[0];
-
   let imageUrl = "";
 
   if (file) {
@@ -122,6 +120,7 @@ async function addProduct() {
     .insert([producto]);
 
   if (error) {
+    console.error(error);
     alert(error.message);
     return;
   }
