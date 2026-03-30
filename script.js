@@ -18,20 +18,13 @@ async function login() {
     password
   });
 
-  if (error) {
-    alert(error.message);
-    return;
-  }
+  if (error) return alert(error.message);
 
   currentUser = data.user;
 
-  const loginPage = document.getElementById("loginPage");
-  const app = document.getElementById("app");
-  const footer = document.getElementById("footer");
-
-  if (loginPage) loginPage.style.display = "none";
-  if (app) app.style.display = "block";
-  if (footer) footer.style.display = "flex";
+  document.getElementById("loginPage").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  document.getElementById("footer").style.display = "flex";
 
   checkRole(email);
   loadProducts();
@@ -48,10 +41,7 @@ function checkRole(email) {
   const isAdmin = adminEmails.includes(email);
 
   const topActions = document.querySelector(".top-actions");
-
-  if (topActions) {
-    topActions.style.display = isAdmin ? "block" : "none";
-  }
+  if (topActions) topActions.style.display = isAdmin ? "block" : "none";
 }
 
 // ================= MODAL =================
@@ -66,7 +56,7 @@ function closeModal() {
 
 // ================= LIMPIAR =================
 function clearForm() {
-  ["nombre","numero_inventario","descripcion","stock","unidad_medida","precio_cup","imagen"]
+  ["nombre","numero_inventario","descripcion","stock","unidad_medida","precio_cup","imagen","categoria"]
   .forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = "";
@@ -93,7 +83,7 @@ async function uploadImage(file) {
   return data.publicUrl;
 }
 
-// ================= AGREGAR =================
+// ================= AGREGAR PRODUCTO =================
 async function addProduct() {
 
   const file = document.getElementById("imagen")?.files[0];
@@ -108,49 +98,42 @@ async function addProduct() {
     stock: Number(document.getElementById("stock").value),
     unidad_medida: document.getElementById("unidad_medida").value,
     precio_cup: Number(document.getElementById("precio_cup").value),
-    imagen_url: imageUrl
+    imagen_url: imageUrl || "",
+    categoria: document.getElementById("categoria")?.value || "general"
   };
 
   const { error } = await supabase
     .from("productos")
     .insert([producto]);
 
-  if (error) {
-    alert(error.message);
-    return;
-  }
+  if (error) return alert(error.message);
 
   closeModal();
   loadProducts();
 }
 
-// ================= CARGAR =================
+// ================= CARGAR PRODUCTOS =================
 async function loadProducts() {
 
-  const { data, error } = await supabase
-    .from("productos")
-    .select("*");
-
-  if (error) {
-    console.error(error);
-    return;
-  }
+  const { data, error } = await supabase.from("productos").select("*");
+  if (error) return console.error(error);
 
   const grid = document.getElementById("productGrid");
   if (!grid) return;
 
   grid.innerHTML = "";
 
-  const topActions = document.querySelector(".top-actions");
-  const isAdmin = topActions ? topActions.style.display === "block" : false;
+  const isAdmin = document.querySelector(".top-actions")?.style.display === "block";
 
   data.forEach(p => {
+
+    const idSafe = String(p.id ?? "");
 
     grid.innerHTML += `
       <div class="card">
         <div class="card-content">
 
-          <img src="${p.imagen_url}" class="product-img">
+          <img src="${p.imagen_url || ''}" class="product-img">
 
           <div class="info">
             <h3>${p.nombre}</h3>
@@ -159,13 +142,13 @@ async function loadProducts() {
             <p><b>${p.precio_cup} CUP</b></p>
 
             <button class="btn"
-              onclick="sellProduct('${p.id}', ${p.stock}, '${p.nombre}', '${p.numero_inventario}', ${p.precio_cup})">
+              onclick="sellProduct('${idSafe}', ${p.stock}, \`${p.nombre}\`, \`${p.numero_inventario}\`, ${p.precio_cup})">
               Vender
             </button>
 
             ${isAdmin ? `
-              <button class="btn" onclick="editProduct('${p.id}')">Editar</button>
-              <button class="btn" onclick="deleteProduct('${p.id}')">Eliminar</button>
+              <button class="btn" onclick="editProduct('${idSafe}')">Editar</button>
+              <button class="btn" onclick="deleteProduct('${idSafe}')">Eliminar</button>
             ` : ""}
 
           </div>
@@ -181,39 +164,43 @@ let currentStock = 0;
 let currentProduct = null;
 
 function sellProduct(id, stock, nombre, inventario, precio) {
+
+  if (!id || typeof id !== "string") {
+    return alert("Error: ID de producto inválido (no es UUID)");
+  }
+
   currentSellId = id;
   currentStock = stock;
 
-  currentProduct = { id, nombre, inventario, precio };
+  currentProduct = {
+    id,
+    nombre,
+    inventario,
+    precio
+  };
 
-  const modal = document.getElementById("sellModal");
-  if (modal) modal.style.display = "flex";
+  document.getElementById("sellModal").style.display = "flex";
 }
 
+// ================= CONFIRMAR VENTA =================
 async function confirmSell() {
 
-  const qtyEl = document.getElementById("sellQuantity");
-  if (!qtyEl) return;
+  const qty = Number(document.getElementById("sellQuantity").value);
 
-  const qty = Number(qtyEl.value);
-
-  if (qty <= 0 || qty > currentStock) {
-    alert("Cantidad inválida");
-    return;
-  }
+  if (!qty || qty <= 0) return alert("Cantidad inválida");
+  if (qty > currentStock) return alert("Stock insuficiente");
 
   const newStock = currentStock - qty;
 
+  // actualizar stock
   const { error } = await supabase
     .from("productos")
     .update({ stock: newStock })
     .eq("id", currentSellId);
 
-  if (error) {
-    alert(error.message);
-    return;
-  }
+  if (error) return alert(error.message);
 
+  // registrar venta
   const { error: saleError } = await supabase
     .from("ventas")
     .insert([{
@@ -226,18 +213,15 @@ async function confirmSell() {
       fecha: new Date().toISOString().split("T")[0]
     }]);
 
-  if (saleError) {
-    alert(saleError.message);
-    return;
-  }
+  if (saleError) return alert(saleError.message);
 
   closeSellModal();
   loadProducts();
 }
 
+// ================= MODAL VENTA =================
 function closeSellModal() {
-  const modal = document.getElementById("sellModal");
-  if (modal) modal.style.display = "none";
+  document.getElementById("sellModal").style.display = "none";
 }
 
 // ================= DELETE =================
@@ -250,17 +234,14 @@ async function deleteProduct(id) {
     .delete()
     .eq("id", id);
 
-  if (error) {
-    alert(error.message);
-    return;
-  }
+  if (error) return alert(error.message);
 
   loadProducts();
 }
 
-// ================= EDIT =================
+// ================= EDIT (placeholder) =================
 function editProduct(id) {
-  alert("Editar lo conectamos luego 👍");
+  alert("Editar lo conectamos después 👍");
 }
 
 // ================= EXPORT =================
