@@ -2,7 +2,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 // ================= SUPABASE =================
 const supabaseUrl = "https://wgjmygpaapczqedcxahz.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indnam15Z3BhYXBjenFlZGN4YWh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3OTM4OTYsImV4cCI6MjA5MDM2OTg5Nn0.GDxHcimnvVj_8M_KAUWOeZxv7Dza8UKFOagOv_34SLo"; // 👈 pon la correcta sin comentarios
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indnam15Z3BhYXBjenFlZGN4YWh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3OTM4OTYsImV4cCI6MjA5MDM2OTg5Nn0.GDxHcimnvVj_8M_KAUWOeZxv7Dza8UKFOagOv_34SLo";
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -25,9 +25,13 @@ async function login() {
 
   currentUser = data.user;
 
-  document.getElementById("loginPage").style.display = "none";
-  document.getElementById("app").style.display = "block";
-  document.getElementById("footer").style.display = "flex";
+  const loginPage = document.getElementById("loginPage");
+  const app = document.getElementById("app");
+  const footer = document.getElementById("footer");
+
+  if (loginPage) loginPage.style.display = "none";
+  if (app) app.style.display = "block";
+  if (footer) footer.style.display = "flex";
 
   checkRole(email);
   loadProducts();
@@ -43,8 +47,11 @@ function checkRole(email) {
 
   const isAdmin = adminEmails.includes(email);
 
-  document.querySelector(".top-actions").style.display =
-    isAdmin ? "block" : "none";
+  const topActions = document.querySelector(".top-actions");
+
+  if (topActions) {
+    topActions.style.display = isAdmin ? "block" : "none";
+  }
 }
 
 // ================= MODAL =================
@@ -86,10 +93,10 @@ async function uploadImage(file) {
   return data.publicUrl;
 }
 
-// ================= AGREGAR PRODUCTO =================
+// ================= AGREGAR =================
 async function addProduct() {
 
-  const file = document.getElementById("imagen").files[0];
+  const file = document.getElementById("imagen")?.files[0];
   let imageUrl = "";
 
   if (file) imageUrl = await uploadImage(file);
@@ -117,7 +124,7 @@ async function addProduct() {
   loadProducts();
 }
 
-// ================= CARGAR PRODUCTOS =================
+// ================= CARGAR =================
 async function loadProducts() {
 
   const { data, error } = await supabase
@@ -130,10 +137,12 @@ async function loadProducts() {
   }
 
   const grid = document.getElementById("productGrid");
+  if (!grid) return;
+
   grid.innerHTML = "";
 
-  const isAdmin =
-    document.querySelector(".top-actions")?.style.display === "block";
+  const topActions = document.querySelector(".top-actions");
+  const isAdmin = topActions ? topActions.style.display === "block" : false;
 
   data.forEach(p => {
 
@@ -149,7 +158,8 @@ async function loadProducts() {
             <p><b>Stock:</b> ${p.stock}</p>
             <p><b>${p.precio_cup} CUP</b></p>
 
-            <button class="btn" onclick="sellProduct('${p.id}', ${p.stock}, '${p.nombre}', '${p.numero_inventario}', ${p.precio_cup})">
+            <button class="btn"
+              onclick="sellProduct('${p.id}', ${p.stock}, '${p.nombre}', '${p.numero_inventario}', ${p.precio_cup})">
               Vender
             </button>
 
@@ -174,19 +184,18 @@ function sellProduct(id, stock, nombre, inventario, precio) {
   currentSellId = id;
   currentStock = stock;
 
-  currentProduct = {
-    id,
-    nombre,
-    inventario,
-    precio
-  };
+  currentProduct = { id, nombre, inventario, precio };
 
-  document.getElementById("sellModal").style.display = "flex";
+  const modal = document.getElementById("sellModal");
+  if (modal) modal.style.display = "flex";
 }
 
 async function confirmSell() {
 
-  const qty = Number(document.getElementById("sellQuantity").value);
+  const qtyEl = document.getElementById("sellQuantity");
+  if (!qtyEl) return;
+
+  const qty = Number(qtyEl.value);
 
   if (qty <= 0 || qty > currentStock) {
     alert("Cantidad inválida");
@@ -195,7 +204,6 @@ async function confirmSell() {
 
   const newStock = currentStock - qty;
 
-  // 1. actualizar stock
   const { error } = await supabase
     .from("productos")
     .update({ stock: newStock })
@@ -206,7 +214,6 @@ async function confirmSell() {
     return;
   }
 
-  // 2. guardar venta
   const { error: saleError } = await supabase
     .from("ventas")
     .insert([{
@@ -229,7 +236,8 @@ async function confirmSell() {
 }
 
 function closeSellModal() {
-  document.getElementById("sellModal").style.display = "none";
+  const modal = document.getElementById("sellModal");
+  if (modal) modal.style.display = "none";
 }
 
 // ================= DELETE =================
@@ -252,7 +260,7 @@ async function deleteProduct(id) {
 
 // ================= EDIT =================
 function editProduct(id) {
-  alert("Editar lo conectamos luego con modal 👍");
+  alert("Editar lo conectamos luego 👍");
 }
 
 // ================= EXPORT =================
