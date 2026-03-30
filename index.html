@@ -30,17 +30,15 @@
 <!-- APP -->
 <div class="content" id="app" style="display:none;">
 
-  <!-- BOTÓN ADMIN -->
-  <div class="top-actions" style="display:none;">
+  <!-- 🔥 BOTÓN ADMIN (QUITÉ inline display:none para que JS lo controle bien) -->
+  <div class="top-actions">
     <button class="add-btn" onclick="openModal()">
       ➕ Agregar producto
     </button>
   </div>
 
   <!-- GRID PRODUCTOS -->
-  <div class="grid" id="productGrid">
-    <!-- productos dinámicos -->
-  </div>
+  <div class="grid" id="productGrid"></div>
 
 </div>
 
@@ -50,26 +48,70 @@
   <button onclick="showSales()">Ventas</button>
 </footer>
 
+<!-- ========================= -->
 <!-- MODAL AGREGAR PRODUCTO -->
+<!-- ========================= -->
 <div class="modal" id="productModal">
   <div class="modal-content">
 
     <h2>Agregar Producto</h2>
 
-    <!-- 🔥 CAMPOS CORRECTOS SEGÚN SUPABASE -->
-  <input id="nombre" placeholder="Nombre del producto">
-<input id="numero_inventario" placeholder="Número de inventario">
-<input id="descripcion" placeholder="Descripción">
-<input id="stock" type="number" placeholder="Stock">
-<input id="unidad_medida" placeholder="Unidad de medida">
-<input id="precio_cup" type="number" placeholder="Precio CUP">
+    <input id="nombre" placeholder="Nombre del producto">
+    <input id="numero_inventario" placeholder="Número de inventario">
+    <input id="descripcion" placeholder="Descripción">
+    <input id="stock" type="number" placeholder="Stock">
+    <input id="unidad_medida" placeholder="Unidad de medida">
+    <input id="precio_cup" type="number" placeholder="Precio CUP">
 
-    <!-- 🔥 IMAGEN REAL (GALERÍA / CÁMARA / PC) -->
-  <input type="file" id="imagen">
+    <input type="file" id="imagen">
 
     <div class="modal-actions">
       <button onclick="addProduct()">Guardar</button>
       <button onclick="closeModal()">Cancelar</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ========================= -->
+<!-- MODAL VENDER PRODUCTO -->
+<!-- ========================= -->
+<div class="modal" id="sellModal">
+  <div class="modal-content">
+
+    <h2>Vender producto</h2>
+
+    <p id="sellInfo"></p>
+
+    <input type="number" id="sellQuantity" placeholder="Cantidad">
+
+    <div class="modal-actions">
+      <button onclick="confirmSell()">OK</button>
+      <button onclick="closeSellModal()">Cancelar</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ========================= -->
+<!-- MODAL EDITAR PRODUCTO -->
+<!-- ========================= -->
+<div class="modal" id="editModal">
+  <div class="modal-content">
+
+    <h2>Editar producto</h2>
+
+    <input id="edit_nombre" placeholder="Nombre">
+    <input id="edit_numero_inventario" placeholder="Número inventario">
+    <input id="edit_descripcion" placeholder="Descripción">
+    <input id="edit_stock" type="number" placeholder="Stock">
+    <input id="edit_unidad_medida" placeholder="Unidad medida">
+    <input id="edit_precio_cup" type="number" placeholder="Precio CUP">
+    <input type="file" id="edit_imagen">
+
+    <div class="modal-actions">
+      <button onclick="updateProduct()">Guardar cambios</button>
+      <button onclick="closeEditModal()">Cancelar</button>
     </div>
 
   </div>
