@@ -1,14 +1,13 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-// 🔥 SUPABASE CONFIG
 const supabaseUrl = "https://wgjmygpaapczqedcxahz.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indnam15Z3BhYXBjenFlZGN4YWh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3OTM4OTYsImV4cCI6MjA5MDM2OTg5Nn0.GDxHcimnvVj_8M_KAUWOeZxv7Dza8UKFOagOv_34SLo";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indnam15Z3BhYXBjenFlZGN4YWh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3OTM4OTYsImV4cCI6MjA5MDM2OTg5Nn0.GDxHcimnvVj_8M_KAUWOeZxv7Dza8UKFOagOv_34SLo; // 👈 usa la tuya correcta
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 let currentUser = null;
 
-// ---------------- LOGIN ----------------
+// ================= LOGIN =================
 async function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -30,11 +29,10 @@ async function login() {
   document.getElementById("footer").style.display = "flex";
 
   checkRole(email);
-
   loadProducts();
 }
 
-// ---------------- ROLES (ADMIN / USER) ----------------
+// ================= ROLES =================
 function checkRole(email) {
   const adminEmails = [
     "director@gmail.com",
@@ -44,16 +42,11 @@ function checkRole(email) {
 
   const isAdmin = adminEmails.includes(email);
 
-  const adminBtn = document.querySelector(".top-actions");
-
-  if (isAdmin) {
-    adminBtn.style.display = "block";
-  } else {
-    adminBtn.style.display = "none";
-  }
+  document.querySelector(".top-actions").style.display =
+    isAdmin ? "block" : "none";
 }
 
-// ---------------- MODAL ----------------
+// ================= MODAL PRODUCTO =================
 function openModal() {
   document.getElementById("productModal").style.display = "flex";
 }
@@ -63,18 +56,16 @@ function closeModal() {
   clearForm();
 }
 
-// ---------------- LIMPIAR FORM ----------------
+// ================= LIMPIAR =================
 function clearForm() {
-  document.getElementById("nombre").value = "";
-  document.getElementById("numero_inventario").value = "";
-  document.getElementById("descripcion").value = "";
-  document.getElementById("stock").value = "";
-  document.getElementById("unidad_medida").value = "";
-  document.getElementById("precio_cup").value = "";
-  document.getElementById("categoria").value = "";
-  document.getElementById("imagen").value = "";
+  ["nombre","numero_inventario","descripcion","stock","unidad_medida","precio_cup","imagen"]
+  .forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
 }
-// ---------------- SUBIR IMAGEN A SUPABASE STORAGE ----------------
+
+// ================= IMAGEN =================
 async function uploadImage(file) {
   const fileName = `${Date.now()}_${file.name}`;
 
@@ -94,7 +85,7 @@ async function uploadImage(file) {
   return data.publicUrl;
 }
 
-// ---------------- AGREGAR PRODUCTO ----------------
+// ================= AGREGAR =================
 async function addProduct() {
 
   const file = document.getElementById("imagen").files[0];
@@ -111,7 +102,6 @@ async function addProduct() {
     stock: Number(document.getElementById("stock").value),
     unidad_medida: document.getElementById("unidad_medida").value,
     precio_cup: Number(document.getElementById("precio_cup").value),
-    categoria: document.getElementById("categoria").value,
     imagen_url: imageUrl
   };
 
@@ -120,19 +110,17 @@ async function addProduct() {
     .insert([producto]);
 
   if (error) {
-    console.error(error);
     alert(error.message);
     return;
   }
-
-  alert("Producto agregado ✔️");
 
   closeModal();
   loadProducts();
 }
 
-// ---------------- PRODUCTOS ----------------
+// ================= CARGAR PRODUCTOS =================
 async function loadProducts() {
+
   const { data, error } = await supabase
     .from("productos")
     .select("*");
@@ -146,47 +134,112 @@ async function loadProducts() {
   grid.innerHTML = "";
 
   data.forEach(p => {
+
+    const isAdmin = document.querySelector(".top-actions").style.display === "block";
+
     grid.innerHTML += `
       <div class="card">
-        <img src="${p.imagen_url}" style="width:100%; border-radius:10px;" />
+        
+        <div class="card-content">
+          
+          <img src="${p.imagen_url}" class="product-img">
 
-        <h3>${p.nombre}</h3>
+          <div class="info">
+            <h3>${p.nombre}</h3>
+            <p><b>Inv:</b> ${p.numero_inventario}</p>
+            <p><b>Stock:</b> ${p.stock}</p>
+            <p><b>${p.precio_cup} CUP</b></p>
 
-        <p><b>Inv:</b> ${p.numero_inventario}</p>
-        <p><b>Stock:</b> ${p.stock}</p>
-        <p>${p.descripcion}</p>
+            <button class="btn" onclick="sellProduct('${p.id}', ${p.stock})">
+              Vender
+            </button>
 
-        <p><b>Precio:</b> ${p.precio_cup} CUP</p>
-        <p><b>Unidad:</b> ${p.unidad_medida}</p>
+            ${isAdmin ? `
+              <button class="btn" onclick="editProduct('${p.id}')">Editar</button>
+              <button class="btn" onclick="deleteProduct('${p.id}')">Eliminar</button>
+            ` : ""}
+          </div>
 
-        <button class="btn" onclick="sellProduct('${p.id}')">
-          Vender
-        </button>
+        </div>
       </div>
     `;
   });
 }
 
-// ---------------- VENTA ----------------
-async function sellProduct(id) {
-  alert("Venta en desarrollo: " + id);
+// ================= VENDER =================
+let currentSellId = null;
+let currentStock = 0;
+
+function sellProduct(id, stock) {
+  currentSellId = id;
+  currentStock = stock;
+
+  document.getElementById("sellModal").style.display = "flex";
 }
 
-// ---------------- VISTAS ----------------
-function showProducts() {
+async function confirmSell() {
+
+  const qty = Number(document.getElementById("sellQuantity").value);
+
+  if (qty <= 0 || qty > currentStock) {
+    alert("Cantidad inválida");
+    return;
+  }
+
+  const newStock = currentStock - qty;
+
+  const { error } = await supabase
+    .from("productos")
+    .update({ stock: newStock })
+    .eq("id", currentSellId);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  closeSellModal();
   loadProducts();
 }
 
-function showSales() {
-  alert("Ventas en desarrollo");
+function closeSellModal() {
+  document.getElementById("sellModal").style.display = "none";
 }
 
-// ---------------- GLOBAL ----------------
+// ================= ELIMINAR =================
+async function deleteProduct(id) {
+
+  if (!confirm("¿Eliminar producto?")) return;
+
+  const { error } = await supabase
+    .from("productos")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  loadProducts();
+}
+
+// ================= EDITAR =================
+let editId = null;
+
+function editProduct(id) {
+  editId = id;
+  alert("Editar en desarrollo (te lo conecto después con modal)");
+}
+
+// ================= EXPORT =================
 window.login = login;
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.addProduct = addProduct;
 window.loadProducts = loadProducts;
 window.sellProduct = sellProduct;
-window.showProducts = showProducts;
-window.showSales = showSales;
+window.confirmSell = confirmSell;
+window.closeSellModal = closeSellModal;
+window.deleteProduct = deleteProduct;
+window.editProduct = editProduct;
