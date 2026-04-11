@@ -99,7 +99,7 @@ async function addProduct() {
     unidad_medida: document.getElementById("unidad_medida").value,
     precio_cup: Number(document.getElementById("precio_cup").value),
     imagen_url: imageUrl || "",
-    categoria: document.getElementById("categoria")?.value || "general"
+   
   };
 
   const { error } = await supabase
