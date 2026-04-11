@@ -67,20 +67,25 @@ function clearForm() {
 async function uploadImage(file) {
   const fileName = `${Date.now()}_${file.name}`;
 
-  const { error } = await supabase.storage
+  const { data, error } = await supabase.storage
     .from("productos")
     .upload(fileName, file);
 
+  console.log("UPLOAD DATA:", data);
+  console.log("UPLOAD ERROR:", error);
+
   if (error) {
-    console.error(error);
+    alert("Error subiendo imagen: " + error.message);
     return "";
   }
 
-  const { data } = supabase.storage
+  const { data: urlData } = supabase.storage
     .from("productos")
     .getPublicUrl(fileName);
 
-  return data.publicUrl;
+  console.log("PUBLIC URL:", urlData.publicUrl);
+
+  return urlData.publicUrl;
 }
 
 // ================= AGREGAR PRODUCTO =================
